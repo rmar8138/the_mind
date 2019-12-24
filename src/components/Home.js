@@ -1,7 +1,20 @@
 import React, { Component } from "react";
+import { Link } from "react-router-dom";
 import shortid from "shortid";
 
+const room = shortid.generate();
+
 export class Home extends Component {
+  state = {
+    username: "",
+    room
+  };
+
+  handleInputChange = e => {
+    const username = e.target.value;
+    this.setState(() => ({ username }));
+  };
+
   render() {
     return (
       <div>
@@ -10,11 +23,22 @@ export class Home extends Component {
           <h2>Create new room</h2>
           <div>
             <label>Enter Username</label>
-            <input type="text" name="username" />
+            <input
+              type="text"
+              name="username"
+              onChange={this.handleInputChange}
+            />
           </div>
-          <div>
-            <input type="submit" value="Create Room" />
-          </div>
+          <Link
+            to={{
+              pathname: `/${room}`,
+              state: {
+                username: this.state.username
+              }
+            }}
+          >
+            Create room
+          </Link>
         </form>
       </div>
     );
