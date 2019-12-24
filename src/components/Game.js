@@ -13,34 +13,62 @@ export class Game extends Component {
   async componentDidMount() {
     const { socket } = this.props;
 
-    // set up users
-    await this.setState(() => ({
-      users: this.props.users.map(user => ({
-        ...user,
-        cards: []
-      }))
-    }));
+    await socket.emit("setupGame", this.props.users.length);
 
-    // initialize cards
-    await this.setupCards();
+    socket.on("setupGame", async ({ cards, userCards, round }) => {
+      await this.setState(prevState => ({
+        ...prevState,
+        round,
+        cardsLeft: cards,
+        users: this.props.users.map((user, index) => ({
+          ...user,
+          cards: userCards[index].sort((a, b) => {
+            if (a > b) return 1;
+            if (a < b) return -1;
+            return 0;
+          })
+        }))
+      }));
+    });
 
-    // assign cards
-    await this.assignCards();
+    // socket.on("validCardPlayed", async () => {
+    //   console.log("yay");
+    //   // update count for all players
+    //   await this.setState(prevState => ({
+    //     ...prevState,
+    //     currentCardCount: (prevState.currentCardCount += 1)
+    //   }));
+    // });
+
+    // // set up users
+    // await this.setState(() => ({
+    //   users: this.props.users.map(user => ({
+    //     ...user,
+    //     cards: []
+    //   }))
+    // }));
+
+    // // initialize cards
+    // await this.setupCards();
+
+    // // assign cards
+    // await this.assignCards();
   }
 
   gameInit = () => {};
 
   setupCards = () => {
-    const { round, users } = this.state;
-    // push round * no. of users amount of integers between 1-100
-    const numbers = _.range(1, 101);
-    const cards = _.sampleSize(numbers, round * users.length).sort((a, b) => {
-      if (a > b) return 1;
-      if (a < b) return -1;
-      return 0;
-    });
+    const { socket } = this.props;
+    const { round } = this.state;
+    const numberOfUsers = this.state.users.length;
 
-    return this.setState(() => ({ cardsLeft: cards }));
+    // socket event
+
+    socket.emit("setupCards", { round, numberOfUsers });
+
+    return socket.on("setupCards", async cards => {
+      await this.setState(() => ({ cardsLeft: cards }));
+    });
   };
 
   assignCards = () => {
@@ -48,6 +76,7 @@ export class Game extends Component {
     const shuffledCards = _.shuffle(cardsLeft);
     // assign cards randomly to each user
     const userCards = _.chunk(shuffledCards, round);
+    console.log(userCards);
 
     return this.setState(prevState => ({
       ...prevState,
@@ -73,16 +102,18 @@ export class Game extends Component {
     return false;
   };
 
-  playCard = e => {
+  playCard = async e => {
+    const { socket } = this.props;
     const playedCard = e.target.value;
 
     if (this.checkValidCard(playedCard)) {
       // correct card played
       console.log("correct card played!");
-      this.setState(prevState => ({
-        ...prevState,
-        currentCardCount: (prevState.currentCardCount += 1)
-      }));
+
+      // send socket event
+      socket.emit("validCardPlayed");
+
+      // remove card from dom here
     } else {
       // incorrect card played, handle this
       console.log("GAME OVER");
@@ -96,6 +127,7 @@ export class Game extends Component {
     return (
       <div>
         <h1>THE GAME HAS STARTED</h1>
+        <h2>Last card played: {this.state.lastCardPlayed}</h2>
         <ul>
           {this.props.users.map(user => (
             <li key={user.socketid}>{user.username}</li>
