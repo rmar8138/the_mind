@@ -13,13 +13,19 @@ router.use((req, res, next) => {
   next();
 });
 
-router.post("/api/room/new", async (req, res) => {
-  // create new room
-  const { username, room, socketid } = req.body;
+router.get("/api/room", async (req, res) => {
+  const { roomid } = req.query;
+  console.log(roomid);
 
-  const newRoom = await RoomModel.create({
-    roomid: room
-  });
+  const roomExists = await RoomModel.findOne({ roomid: roomid });
+  res.json(roomExists);
+});
+
+router.post("/api/room", async (req, res) => {
+  // create new room
+  const { username, roomid, socketid } = req.body;
+
+  const newRoom = await RoomModel.create({ roomid });
 
   newRoom.users.push({
     username,

@@ -15,7 +15,7 @@ mongoose.connect(`mongodb://localhost/the_mind`, {
 mongoose.Promise = global.Promise;
 mongoose.connection.on("error", err => console.log(err));
 
-app.use(bodyParser.urlencoded());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 app.use(routes);

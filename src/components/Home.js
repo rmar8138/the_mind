@@ -3,12 +3,12 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import shortid from "shortid";
 
-const room = shortid.generate();
+const roomid = shortid.generate();
 
 export class Home extends Component {
   state = {
     username: "",
-    room
+    roomid
   };
 
   handleInputChange = e => {
@@ -16,20 +16,28 @@ export class Home extends Component {
     this.setState(() => ({ username }));
   };
 
-  createRoom = async () => {
-    const { username, room } = this.state;
-    const newRoom = await axios.post("http://localhost:5000/api/room/new", {
+  createRoom = async e => {
+    const { username, roomid } = this.state;
+    e.preventDefault();
+    const newRoom = await axios.post("http://localhost:5000/api/room", {
       username,
-      room
+      roomid
     });
     console.log(newRoom);
+    this.props.history.push({
+      pathname: `/${roomid}`,
+      state: {
+        username,
+        roomid
+      }
+    });
   };
 
   render() {
     return (
       <div>
         <h1>The Mind</h1>
-        <form>
+        <form onSubmit={this.createRoom}>
           <h2>Create new room</h2>
           <div>
             <label>Enter Username</label>
@@ -39,7 +47,7 @@ export class Home extends Component {
               onChange={this.handleInputChange}
             />
           </div>
-          <Link
+          {/* <Link
             to={{
               pathname: `/${room}`,
               state: {
@@ -49,7 +57,8 @@ export class Home extends Component {
             onClick={this.createRoom}
           >
             Create room
-          </Link>
+          </Link> */}
+          <input type="submit" value="Create Room" />
         </form>
       </div>
     );
