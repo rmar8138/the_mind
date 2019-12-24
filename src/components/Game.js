@@ -69,6 +69,15 @@ export class Game extends Component {
             <li key={user.socketid}>{user.username}</li>
           ))}
         </ul>
+        {this.state.users.length && (
+          <ul>
+            {this.state.users
+              .find(user => user.socketid === this.props.socket.id)
+              .cards.map(card => (
+                <li key={card}>{card}</li>
+              ))}
+          </ul>
+        )}
       </div>
     );
   }
