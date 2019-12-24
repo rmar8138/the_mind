@@ -7,36 +7,40 @@ let socket = null;
 
 export class Room extends Component {
   state = {
-    currentUser: this.props.location.state,
-    roomid: "",
+    currentUser: "",
     users: []
   };
 
   async componentDidMount() {
-    // if (!this.props.location.state.roomid) {
-    //   console.log("redirect here");
-    // }
     const { roomid } = this.props.match.params;
-    console.log(roomid);
-    // check if room exists
-    const roomExists = await axios.get(`${endpoint}/api/room?roomid=${roomid}`);
+    // establish socket connection
+    socket = socketClient(endpoint, { roomid });
+    socket.emit("setRoom", roomid);
 
-    // push user to users
+    // query server for room to search for users
+    const roomData = await axios.get(`${endpoint}/api/room?roomid=${roomid}`);
     this.setState(() => ({
-      roomid: roomExists.data.roomid,
-      users: roomExists.data.users
+      users: roomData.data.users
     }));
+    console.log(roomData);
 
-    // socket logic here
-    socket = socketClient(endpoint);
-    socket.emit("message", "hello from the client");
+    // socket logic
+    socket.on("updateUsers", data => {
+      this.setState(() => ({
+        users: data
+      }));
+    });
   }
 
   joinRoom = e => {
-    const username = e.target.elements.username;
+    const { roomid } = this.props.match.params;
+    const username = e.target.elements.username.value;
+
     e.preventDefault();
+
     this.setState(() => ({ currentUser: username }));
-    //socket logic here for new user
+
+    socket.emit("joinRoom", { roomid, username, socketid: socket.id });
   };
 
   render() {

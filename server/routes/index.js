@@ -23,16 +23,9 @@ router.get("/api/room", async (req, res) => {
 
 router.post("/api/room", async (req, res) => {
   // create new room
-  const { username, roomid, socketid } = req.body;
+  const { roomid } = req.body;
 
   const newRoom = await RoomModel.create({ roomid });
-
-  newRoom.users.push({
-    username,
-    socketid
-  });
-
-  newRoom.save();
 
   res.json(newRoom);
 });

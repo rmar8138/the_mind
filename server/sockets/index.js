@@ -1,9 +1,32 @@
+const RoomModel = require("../database/models/RoomModel");
+
 const socketInit = (io, socket) => {
-  socket.on("message", data => {
-    console.log(data);
+  let room = null;
+  socket.on("setRoom", roomid => {
+    socket.join(roomid);
   });
+
+  socket.on("joinRoom", async ({ roomid, username, socketid }) => {
+    const newUser = {
+      username: username,
+      socketid: socketid
+    };
+
+    room = await RoomModel.findOne({ roomid: roomid });
+
+    room.users.push(newUser);
+    room.save();
+
+    io.to(room.roomid).emit("updateUsers", room.users);
+  });
+
   socket.on("disconnect", () => {
-    console.log("user has disconnected");
+    const userid = room.users.find(user => user.socketid === socket.id)._id;
+    // delete user from room
+    room.users.pull(userid);
+    room.save();
+
+    io.to(room.roomid).emit("updateUsers", room.users);
   });
 };
 
