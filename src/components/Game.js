@@ -21,7 +21,12 @@ export class Game extends Component {
 
     // initialize cards
     await this.setupCards();
+
+    // assign cards
+    await this.assignCards();
   }
+
+  gameInit = () => {};
 
   setupCards = () => {
     const { round, users } = this.state;
@@ -34,6 +39,25 @@ export class Game extends Component {
     });
 
     return this.setState(() => ({ cardsLeft: cards }));
+  };
+
+  assignCards = () => {
+    const { cardsLeft, round } = this.state;
+    const shuffledCards = _.shuffle(cardsLeft);
+    // assign cards randomly to each user
+    const userCards = _.chunk(shuffledCards, round);
+
+    return this.setState(prevState => ({
+      ...prevState,
+      users: prevState.users.map((user, index) => ({
+        ...user,
+        cards: userCards[index].sort((a, b) => {
+          if (a > b) return 1;
+          if (a < b) return -1;
+          return 0;
+        })
+      }))
+    }));
   };
 
   render() {
