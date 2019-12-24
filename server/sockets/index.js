@@ -20,6 +20,12 @@ const socketInit = (io, socket) => {
     io.to(room.roomid).emit("updateUsers", room.users);
   });
 
+  socket.on("startGame", data => {
+    console.log(data);
+
+    io.to(room.roomid).emit("startGame");
+  });
+
   socket.on("disconnect", () => {
     const userid = room.users.find(user => user.socketid === socket.id)._id;
     // delete user from room

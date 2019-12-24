@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 import socketClient from "socket.io-client";
 import axios from "axios";
+import Lobby from "./Lobby";
+import Game from "./Game";
 
 const endpoint = "http://localhost:5000";
 let socket = null;
@@ -8,6 +10,7 @@ let socket = null;
 export class Room extends Component {
   state = {
     currentUser: "",
+    gameStarted: false,
     users: []
   };
 
@@ -22,13 +25,16 @@ export class Room extends Component {
     this.setState(() => ({
       users: roomData.data.users
     }));
-    console.log(roomData);
 
     // socket logic
     socket.on("updateUsers", data => {
       this.setState(() => ({
         users: data
       }));
+    });
+
+    socket.on("startGame", () => {
+      this.setState(() => ({ gameStarted: true }));
     });
   }
 
@@ -43,16 +49,22 @@ export class Room extends Component {
     socket.emit("joinRoom", { roomid, username, socketid: socket.id });
   };
 
+  startGame = () => {
+    // send socket event that renders game component for all connected sockets
+    socket.emit("startGame");
+  };
+
   render() {
     return this.state.currentUser ? (
-      <div>
-        <h1>{this.state.roomid}</h1>
-        <ul>
-          {this.state.users.map(user => (
-            <li>{user.username}</li>
-          ))}
-        </ul>
-      </div>
+      this.state.gameStarted ? (
+        <Game users={this.state.users} />
+      ) : (
+        <Lobby
+          roomid={this.props.match.params.roomid}
+          users={this.state.users}
+          startGame={this.startGame}
+        />
+      )
     ) : (
       <div>
         <h1>pls enter name</h1>
@@ -61,7 +73,7 @@ export class Room extends Component {
             <label>Username</label>
             <input type="text" name="username" />
           </div>
-          <input type="submit" value="Join room" />
+          <button>Join Room</button>
         </form>
       </div>
     );
