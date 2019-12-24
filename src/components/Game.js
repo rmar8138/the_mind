@@ -5,6 +5,8 @@ export class Game extends Component {
   state = {
     round: 12,
     cardsLeft: [],
+    currentCardCount: 0,
+    gameOver: false,
     users: []
   };
 
@@ -60,6 +62,36 @@ export class Game extends Component {
     }));
   };
 
+  checkValidCard = playedCard => {
+    // add logic to check card
+    const { cardsLeft, currentCardCount } = this.state;
+
+    if (cardsLeft[currentCardCount] === playedCard) {
+      return true;
+    }
+
+    return false;
+  };
+
+  playCard = e => {
+    const playedCard = e.target.value;
+
+    if (this.checkValidCard(playedCard)) {
+      // correct card played
+      console.log("correct card played!");
+      this.setState(prevState => ({
+        ...prevState,
+        currentCardCount: (prevState.currentCardCount += 1)
+      }));
+    } else {
+      // incorrect card played, handle this
+      console.log("GAME OVER");
+      this.setState(() => ({
+        gameOver: true
+      }));
+    }
+  };
+
   render() {
     return (
       <div>
@@ -74,7 +106,9 @@ export class Game extends Component {
             {this.state.users
               .find(user => user.socketid === this.props.socket.id)
               .cards.map(card => (
-                <li key={card}>{card}</li>
+                <li key={card} onClick={this.playCard} value={card}>
+                  {card}
+                </li>
               ))}
           </ul>
         )}
