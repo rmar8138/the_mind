@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
+import axios from "axios";
 import shortid from "shortid";
 
 const room = shortid.generate();
@@ -13,6 +14,15 @@ export class Home extends Component {
   handleInputChange = e => {
     const username = e.target.value;
     this.setState(() => ({ username }));
+  };
+
+  createRoom = async () => {
+    const { username, room } = this.state;
+    const newRoom = await axios.post("http://localhost:5000/api/room/new", {
+      username,
+      room
+    });
+    console.log(newRoom);
   };
 
   render() {
@@ -36,6 +46,7 @@ export class Home extends Component {
                 username: this.state.username
               }
             }}
+            onClick={this.createRoom}
           >
             Create room
           </Link>
