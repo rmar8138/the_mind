@@ -71,7 +71,7 @@ export class Room extends Component {
       <h1>LOADING</h1>
     ) : this.state.currentUser ? (
       this.state.gameStarted ? (
-        <Game users={this.state.users} />
+        <Game users={this.state.users} socket={socket} />
       ) : (
         <Lobby
           roomid={this.props.match.params.roomid}
