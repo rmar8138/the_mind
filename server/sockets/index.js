@@ -20,8 +20,10 @@ const socketInit = (io, socket) => {
     io.to(room.roomid).emit("updateUsers", room.users);
   });
 
-  socket.on("startGame", data => {
+  socket.on("startGame", async data => {
     console.log(data);
+
+    await room.updateOne({ gameStarted: true });
 
     io.to(room.roomid).emit("startGame");
   });

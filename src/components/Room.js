@@ -11,20 +11,32 @@ export class Room extends Component {
   state = {
     currentUser: "",
     gameStarted: false,
+    loading: true,
     users: []
   };
 
   async componentDidMount() {
     const { roomid } = this.props.match.params;
-    // establish socket connection
-    socket = socketClient(endpoint, { roomid });
-    socket.emit("setRoom", roomid);
 
     // query server for room to search for users
     const roomData = await axios.get(`${endpoint}/api/room?roomid=${roomid}`);
     this.setState(() => ({
-      users: roomData.data.users
+      users: roomData.data.users,
+      gameStarted: roomData.data.gameStarted
     }));
+
+    // redirect if game has already started
+    if (this.state.gameStarted) {
+      console.log("HEY THE GAME HAS ALREADY STARTED");
+      return this.props.history.push("/");
+    }
+
+    // change loading state
+    this.setState(() => ({ loading: false }));
+
+    // establish socket connection
+    socket = socketClient(endpoint, { roomid });
+    socket.emit("setRoom", roomid);
 
     // socket logic
     socket.on("updateUsers", data => {
@@ -55,7 +67,9 @@ export class Room extends Component {
   };
 
   render() {
-    return this.state.currentUser ? (
+    return this.state.loading ? (
+      <h1>LOADING</h1>
+    ) : this.state.currentUser ? (
       this.state.gameStarted ? (
         <Game users={this.state.users} />
       ) : (

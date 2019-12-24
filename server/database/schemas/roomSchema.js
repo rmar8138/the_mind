@@ -7,6 +7,11 @@ const roomSchema = new Schema({
     type: String,
     required: true
   },
+  gameStarted: {
+    type: Boolean,
+    required: true,
+    default: false
+  },
   users: [userSchema]
 });
 
