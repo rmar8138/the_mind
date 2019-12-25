@@ -2,7 +2,7 @@ const _ = require("lodash");
 const RoomModel = require("../database/models/RoomModel");
 
 const socketInit = (io, socket) => {
-  let round = 1;
+  let round = 12;
   let room = null;
 
   socket.on("setRoom", roomid => {
@@ -64,6 +64,10 @@ const socketInit = (io, socket) => {
   socket.on("nextRound", () => {
     // increment round
     round++;
+  });
+
+  socket.on("gameWon", () => {
+    io.to(room.roomid).emit("gameWon");
   });
 
   socket.on("disconnect", () => {

@@ -7,6 +7,7 @@ export class Game extends Component {
     currentCardCount: 0,
     lastPlayedCard: null,
     gameOver: false,
+    gameWon: false,
     users: []
   };
 
@@ -16,7 +17,8 @@ export class Game extends Component {
     await socket.emit("setupGame", this.props.users.length);
 
     socket.on("setupGame", async ({ cards, userCards, round }) => {
-      await this.setState(() => ({
+      await this.setState(prevState => ({
+        ...prevState,
         lastPlayedCard: null,
         currentCardCount: 0,
         round,
@@ -45,6 +47,10 @@ export class Game extends Component {
         ...prevState,
         lastPlayedCard: playedCard
       }));
+    });
+
+    socket.on("gameWon", async () => {
+      await this.setState(() => ({ gameWon: true }));
     });
   }
 
@@ -80,7 +86,7 @@ export class Game extends Component {
       // check if cards remaining?
       if (cardsLeft.length - 1 === currentCardCount) {
         if (round === 12) {
-          this.gameWon();
+          await this.gameWon();
         } else {
           console.log("next round bruh");
           this.nextRound();
@@ -131,14 +137,19 @@ export class Game extends Component {
     await socket.emit("setupGame", this.props.users.length);
   };
 
-  gameWon = () => {
-    console.log("congrats!");
+  gameWon = async () => {
+    const { socket } = this.props;
+    // send gameWon socket event
+
+    socket.emit("gameWon");
   };
 
   render() {
     return (
       <div>
         <h1>THE GAME HAS STARTED</h1>
+        {this.state.gameWon && <h2>You win! Congrats!</h2>}
+        <h2>Round {this.state.round}</h2>
         <h2>Last card played: {this.state.lastPlayedCard}</h2>
         <ul>
           {this.props.users.map(user => (
