@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import _ from "lodash";
 
 export class Game extends Component {
   state = {
@@ -31,65 +30,14 @@ export class Game extends Component {
       }));
     });
 
-    // socket.on("validCardPlayed", async () => {
-    //   console.log("yay");
-    //   // update count for all players
-    //   await this.setState(prevState => ({
-    //     ...prevState,
-    //     currentCardCount: (prevState.currentCardCount += 1)
-    //   }));
-    // });
-
-    // // set up users
-    // await this.setState(() => ({
-    //   users: this.props.users.map(user => ({
-    //     ...user,
-    //     cards: []
-    //   }))
-    // }));
-
-    // // initialize cards
-    // await this.setupCards();
-
-    // // assign cards
-    // await this.assignCards();
-  }
-
-  gameInit = () => {};
-
-  setupCards = () => {
-    const { socket } = this.props;
-    const { round } = this.state;
-    const numberOfUsers = this.state.users.length;
-
-    // socket event
-
-    socket.emit("setupCards", { round, numberOfUsers });
-
-    return socket.on("setupCards", async cards => {
-      await this.setState(() => ({ cardsLeft: cards }));
+    socket.on("validCardPlayed", async () => {
+      // update count for all players
+      await this.setState(prevState => ({
+        ...prevState,
+        currentCardCount: (prevState.currentCardCount += 1)
+      }));
     });
-  };
-
-  assignCards = () => {
-    const { cardsLeft, round } = this.state;
-    const shuffledCards = _.shuffle(cardsLeft);
-    // assign cards randomly to each user
-    const userCards = _.chunk(shuffledCards, round);
-    console.log(userCards);
-
-    return this.setState(prevState => ({
-      ...prevState,
-      users: prevState.users.map((user, index) => ({
-        ...user,
-        cards: userCards[index].sort((a, b) => {
-          if (a > b) return 1;
-          if (a < b) return -1;
-          return 0;
-        })
-      }))
-    }));
-  };
+  }
 
   checkValidCard = playedCard => {
     // add logic to check card
@@ -114,6 +62,9 @@ export class Game extends Component {
       socket.emit("validCardPlayed");
 
       // remove card from dom here
+      await this.removeCard(playedCard);
+
+      // check if cards remaining?
     } else {
       // incorrect card played, handle this
       console.log("GAME OVER");
@@ -121,6 +72,24 @@ export class Game extends Component {
         gameOver: true
       }));
     }
+  };
+
+  removeCard = async playedCard => {
+    const { socket } = this.props;
+    // remove last played card from users card array
+    await this.setState(prevState => ({
+      ...prevState,
+      users: prevState.users.map(user => {
+        if (user.socketid === socket.id) {
+          return {
+            ...user,
+            cards: user.cards.filter(card => card !== playedCard)
+          };
+        }
+
+        return user;
+      })
+    }));
   };
 
   render() {
