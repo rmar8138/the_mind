@@ -2,6 +2,7 @@ import React, { Component } from "react";
 
 export class Game extends Component {
   state = {
+    loaded: false,
     round: null,
     cardsLeft: [],
     currentCardCount: 0,
@@ -17,8 +18,7 @@ export class Game extends Component {
     await socket.emit("setupGame", this.props.users.length);
 
     socket.on("setupGame", async ({ cards, userCards, round }) => {
-      await this.setState(prevState => ({
-        ...prevState,
+      await this.setState(() => ({
         lastPlayedCard: null,
         currentCardCount: 0,
         round,
@@ -32,6 +32,8 @@ export class Game extends Component {
           })
         }))
       }));
+
+      this.setState(() => ({ loaded: true }));
     });
 
     socket.on("validCardPlayed", async () => {
@@ -145,15 +147,17 @@ export class Game extends Component {
   };
 
   render() {
-    return (
+    return this.state.loaded ? (
       <div>
         <h1>THE GAME HAS STARTED</h1>
         {this.state.gameWon && <h2>You win! Congrats!</h2>}
         <h2>Round {this.state.round}</h2>
         <h2>Last card played: {this.state.lastPlayedCard}</h2>
         <ul>
-          {this.props.users.map(user => (
-            <li key={user.socketid}>{user.username}</li>
+          {this.state.users.map(user => (
+            <li key={user.socketid}>
+              {user.username} - {user.cards.length} card(s) left
+            </li>
           ))}
         </ul>
         {this.state.users.length && (
@@ -168,6 +172,8 @@ export class Game extends Component {
           </ul>
         )}
       </div>
+    ) : (
+      <h1>LOADING</h1>
     );
   }
 }
