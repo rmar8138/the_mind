@@ -5,6 +5,7 @@ export class Game extends Component {
     round: 12,
     cardsLeft: [],
     currentCardCount: 0,
+    lastPlayedCard: null,
     gameOver: false,
     users: []
   };
@@ -37,6 +38,13 @@ export class Game extends Component {
         currentCardCount: (prevState.currentCardCount += 1)
       }));
     });
+
+    socket.on("updateLastPlayedCard", async playedCard => {
+      await this.setState(prevState => ({
+        ...prevState,
+        lastPlayedCard: playedCard
+      }));
+    });
   }
 
   checkValidCard = playedCard => {
@@ -51,8 +59,15 @@ export class Game extends Component {
   };
 
   playCard = async e => {
+    const { round, currentCardCount } = this.state;
     const { socket } = this.props;
     const playedCard = e.target.value;
+
+    // update last played card
+    this.updateLastPlayedCard(playedCard);
+
+    // remove card from dom here
+    await this.removeCard(playedCard);
 
     if (this.checkValidCard(playedCard)) {
       // correct card played
@@ -61,12 +76,18 @@ export class Game extends Component {
       // send socket event
       socket.emit("validCardPlayed");
 
-      // remove card from dom here
-      await this.removeCard(playedCard);
-
       // check if cards remaining?
+      if (round === currentCardCount) {
+        if (round === 12) {
+          this.gameWon();
+        } else {
+          this.nextRound();
+        }
+      }
     } else {
       // incorrect card played, handle this
+
+      // disable click events??
       console.log("GAME OVER");
       this.setState(() => ({
         gameOver: true
@@ -92,11 +113,25 @@ export class Game extends Component {
     }));
   };
 
+  updateLastPlayedCard = playedCard => {
+    const { socket } = this.props;
+    // send socket event
+    socket.emit("updateLastPlayedCard", playedCard);
+  };
+
+  nextRound = () => {
+    console.log("next round");
+  };
+
+  gameWon = () => {
+    console.log("congrats!");
+  };
+
   render() {
     return (
       <div>
         <h1>THE GAME HAS STARTED</h1>
-        <h2>Last card played: {this.state.lastCardPlayed}</h2>
+        <h2>Last card played: {this.state.lastPlayedCard}</h2>
         <ul>
           {this.props.users.map(user => (
             <li key={user.socketid}>{user.username}</li>
