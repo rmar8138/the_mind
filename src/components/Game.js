@@ -2,7 +2,7 @@ import React, { Component } from "react";
 
 export class Game extends Component {
   state = {
-    round: 12,
+    round: null,
     cardsLeft: [],
     currentCardCount: 0,
     lastPlayedCard: null,
@@ -16,8 +16,9 @@ export class Game extends Component {
     await socket.emit("setupGame", this.props.users.length);
 
     socket.on("setupGame", async ({ cards, userCards, round }) => {
-      await this.setState(prevState => ({
-        ...prevState,
+      await this.setState(() => ({
+        lastPlayedCard: null,
+        currentCardCount: 0,
         round,
         cardsLeft: cards,
         users: this.props.users.map((user, index) => ({
@@ -59,7 +60,7 @@ export class Game extends Component {
   };
 
   playCard = async e => {
-    const { round, currentCardCount } = this.state;
+    const { round, cardsLeft, currentCardCount } = this.state;
     const { socket } = this.props;
     const playedCard = e.target.value;
 
@@ -77,10 +78,11 @@ export class Game extends Component {
       socket.emit("validCardPlayed");
 
       // check if cards remaining?
-      if (round === currentCardCount) {
+      if (cardsLeft.length - 1 === currentCardCount) {
         if (round === 12) {
           this.gameWon();
         } else {
+          console.log("next round bruh");
           this.nextRound();
         }
       }
@@ -119,8 +121,14 @@ export class Game extends Component {
     socket.emit("updateLastPlayedCard", playedCard);
   };
 
-  nextRound = () => {
-    console.log("next round");
+  nextRound = async () => {
+    const { socket } = this.props;
+
+    // send nextRound socket event to update round
+    await socket.emit("nextRound");
+
+    // setup game/cards
+    await socket.emit("setupGame", this.props.users.length);
   };
 
   gameWon = () => {

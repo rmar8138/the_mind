@@ -2,7 +2,7 @@ const _ = require("lodash");
 const RoomModel = require("../database/models/RoomModel");
 
 const socketInit = (io, socket) => {
-  let round = 12;
+  let round = 1;
   let room = null;
 
   socket.on("setRoom", roomid => {
@@ -59,6 +59,11 @@ const socketInit = (io, socket) => {
   // update last played card state for all sockets
   socket.on("updateLastPlayedCard", playedCard => {
     io.to(room.roomid).emit("updateLastPlayedCard", playedCard);
+  });
+
+  socket.on("nextRound", () => {
+    // increment round
+    round++;
   });
 
   socket.on("disconnect", () => {
