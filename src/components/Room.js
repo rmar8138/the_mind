@@ -20,10 +20,17 @@ export class Room extends Component {
 
     // query server for room to search for users
     const roomData = await axios.get(`${endpoint}/api/room?roomid=${roomid}`);
-    this.setState(() => ({
-      users: roomData.data.users,
-      gameStarted: roomData.data.gameStarted
-    }));
+
+    // redirect if invalid room id
+    if (!roomData.data) {
+      // redirect with message
+      return this.props.history.replace({
+        pathname: "/",
+        state: {
+          error: "Room does not exist"
+        }
+      });
+    }
 
     // redirect if game has already started
     if (this.state.gameStarted) {
@@ -47,8 +54,11 @@ export class Room extends Component {
       });
     }
 
-    // change loading state
-    this.setState(() => ({ loading: false }));
+    this.setState(() => ({
+      users: roomData.data.users,
+      gameStarted: roomData.data.gameStarted,
+      loading: false
+    }));
 
     // establish socket connection
     socket = socketClient(endpoint, { roomid });
