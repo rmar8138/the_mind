@@ -27,9 +27,7 @@ export class Room extends Component {
 
     // redirect if game has already started
     if (this.state.gameStarted) {
-      console.log("HEY THE GAME HAS ALREADY STARTED");
-
-      // redirec with messagw
+      // redirect with message
       return this.props.history.replace({
         pathname: "/",
         state: {
@@ -40,10 +38,13 @@ export class Room extends Component {
 
     // redirect if game already has 4 players
     if (this.state.users.length === 4) {
-      console.log("ROOM IS FULL");
-
       // redirect with message
-      return this.props.history.replace("/");
+      return this.props.history.replace({
+        pathname: "/",
+        state: {
+          error: "Room is full"
+        }
+      });
     }
 
     // change loading state
