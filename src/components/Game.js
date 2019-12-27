@@ -2,7 +2,6 @@ import React, { Component } from "react";
 
 export class Game extends Component {
   state = {
-    loaded: false,
     round: null,
     cardsLeft: [],
     currentCardCount: 0,
@@ -32,8 +31,6 @@ export class Game extends Component {
           })
         }))
       }));
-
-      this.setState(() => ({ loaded: true }));
     });
 
     socket.on("validCardPlayed", async () => {
@@ -147,7 +144,7 @@ export class Game extends Component {
   };
 
   render() {
-    return this.state.loaded ? (
+    return (
       <div>
         <h1>THE GAME HAS STARTED</h1>
         {this.state.gameWon && <h2>You win! Congrats!</h2>}
@@ -172,8 +169,6 @@ export class Game extends Component {
           </ul>
         )}
       </div>
-    ) : (
-      <h1>LOADING</h1>
     );
   }
 }

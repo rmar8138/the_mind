@@ -1,9 +1,14 @@
 const _ = require("lodash");
 const RoomModel = require("../database/models/RoomModel");
 
+const sockets = [];
+
 const socketInit = (io, socket) => {
   let round = 12;
   let room = null;
+
+  // push socket id to array
+  sockets.push(socket.id);
 
   socket.on("setRoom", roomid => {
     socket.join(roomid);
@@ -71,12 +76,14 @@ const socketInit = (io, socket) => {
   });
 
   socket.on("disconnect", () => {
-    const userid = room.users.find(user => user.socketid === socket.id)._id;
     // delete user from room
-    room.users.pull(userid);
-    room.save();
+    if (room) {
+      const userid = room.users.find(user => user.socketid === socket.id)._id;
+      room.users.pull(userid);
+      room.save();
 
-    io.to(room.roomid).emit("updateUsers", room.users);
+      io.to(room.roomid).emit("updateUsers", room.users);
+    }
   });
 };
 
