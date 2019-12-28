@@ -57,8 +57,8 @@ const socketInit = (io, socket) => {
   });
 
   // send valid card played to all sockets
-  socket.on("validCardPlayed", () => {
-    io.to(room.roomid).emit("validCardPlayed");
+  socket.on("validCardPlayed", (socketid, playedCard) => {
+    io.to(room.roomid).emit("validCardPlayed", socketid, playedCard);
   });
 
   // update last played card state for all sockets

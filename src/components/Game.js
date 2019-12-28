@@ -37,11 +37,21 @@ export class Game extends Component {
       console.log(this.state.round);
     });
 
-    socket.on("validCardPlayed", async () => {
+    socket.on("validCardPlayed", async (socketid, playedCard) => {
       // update count for all players
       await this.setState(prevState => ({
         ...prevState,
-        currentCardCount: (prevState.currentCardCount += 1)
+        currentCardCount: (prevState.currentCardCount += 1),
+        users: prevState.users.map(user => {
+          if (user.socketid === socketid) {
+            return {
+              ...user,
+              cards: user.cards.filter(card => card !== playedCard)
+            };
+          }
+
+          return user;
+        })
       }));
     });
 
@@ -110,7 +120,7 @@ export class Game extends Component {
       console.log("correct card played!");
 
       // send socket event
-      socket.emit("validCardPlayed");
+      socket.emit("validCardPlayed", socket.id, playedCard);
 
       // check if cards remaining?
       if (cardsLeft.length - 1 === currentCardCount) {
