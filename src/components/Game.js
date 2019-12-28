@@ -91,6 +91,19 @@ export class Game extends Component {
         state: null
       });
     });
+
+    socket.on("userDisconnect", () => {
+      // when user disconnects during in progress game,
+      // redirect everyone back to home with
+      // error message
+      socket.emit("exitGame");
+      return this.props.history.replace({
+        pathname: "/",
+        state: {
+          error: "A user has disconnected"
+        }
+      });
+    });
   }
 
   checkValidCard = playedCard => {

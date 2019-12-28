@@ -91,9 +91,11 @@ const socketInit = (io, socket) => {
     io.to(room.roomid).emit("exitGame");
   });
 
+  // CLEAN THIS UP ITS GROSS //
   socket.on("disconnect", async () => {
-    console.log(roomidReference);
-    console.log(room);
+    // this is for when user disconnects during game in progress
+    io.to(room.roomid).emit("userDisconnect");
+
     if (room.users.length) {
       // delete user from room
       try {
