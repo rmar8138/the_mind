@@ -4,7 +4,6 @@ const RoomModel = require("../database/models/RoomModel");
 const sockets = [];
 
 const socketInit = (io, socket) => {
-  let round = 12;
   let room = null;
 
   // push socket id to array
@@ -35,7 +34,8 @@ const socketInit = (io, socket) => {
   });
 
   // setup cards for all sockets
-  socket.on("setupGame", async numberOfUsers => {
+  socket.on("setupGame", async (numberOfUsers, round) => {
+    console.log(round);
     await room.updateOne({ gameStarted: true });
 
     // setup cards
@@ -53,7 +53,7 @@ const socketInit = (io, socket) => {
     // assign cards randomly to each user
     const userCards = _.chunk(shuffledCards, round);
 
-    io.to(room.roomid).emit("setupGame", { cards, userCards, round });
+    io.to(room.roomid).emit("setupGame", { cards, userCards });
   });
 
   // send valid card played to all sockets
@@ -68,11 +68,15 @@ const socketInit = (io, socket) => {
 
   socket.on("nextRound", () => {
     // increment round
-    round++;
+    io.to(room.roomid).emit("nextRound");
   });
 
   socket.on("gameWon", () => {
     io.to(room.roomid).emit("gameWon");
+  });
+
+  socket.on("resetRoundCount", () => {
+    io.to(room.roomid).emit("resetRoundCount");
   });
 
   socket.on("disconnect", () => {

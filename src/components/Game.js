@@ -2,7 +2,7 @@ import React, { Component } from "react";
 
 export class Game extends Component {
   state = {
-    round: null,
+    round: 1,
     cardsLeft: [],
     currentCardCount: 0,
     lastPlayedCard: null,
@@ -14,14 +14,17 @@ export class Game extends Component {
   async componentDidMount() {
     const { socket } = this.props;
 
-    await socket.emit("setupGame", this.props.users.length);
+    await socket.emit("setupGame", this.props.users.length, this.state.round);
 
-    socket.on("setupGame", async ({ cards, userCards, round }) => {
-      await this.setState(() => ({
+    socket.on("setupGame", async ({ cards, userCards }) => {
+      console.log(this.state.round);
+      await this.setState(prevState => ({
+        ...prevState,
         lastPlayedCard: null,
         currentCardCount: 0,
-        round,
         cardsLeft: cards,
+        gameOver: false,
+        gameWon: false,
         users: this.props.users.map((user, index) => ({
           ...user,
           cards: userCards[index].sort((a, b) => {
@@ -31,6 +34,7 @@ export class Game extends Component {
           })
         }))
       }));
+      console.log(this.state.round);
     });
 
     socket.on("validCardPlayed", async () => {
@@ -50,6 +54,19 @@ export class Game extends Component {
 
     socket.on("gameWon", async () => {
       await this.setState(() => ({ gameWon: true }));
+    });
+
+    socket.on("nextRound", async () => {
+      await this.setState(prevState => ({
+        ...prevState,
+        round: (prevState.round += 1)
+      }));
+    });
+
+    socket.on("resetRoundCount", async () => {
+      await this.setState(() => ({
+        round: 1
+      }));
     });
   }
 
@@ -132,8 +149,13 @@ export class Game extends Component {
     // send nextRound socket event to update round
     await socket.emit("nextRound");
 
+    console.log(this.state.round);
     // setup game/cards
-    await socket.emit("setupGame", this.props.users.length);
+    await socket.emit(
+      "setupGame",
+      this.props.users.length,
+      this.state.round + 1
+    );
   };
 
   gameWon = async () => {
@@ -143,11 +165,23 @@ export class Game extends Component {
     socket.emit("gameWon");
   };
 
+  resetGame = () => {
+    const { socket } = this.props;
+    socket.emit("resetRoundCount");
+    socket.emit("setupGame", this.props.users.length, 1);
+  };
+
   render() {
     return (
       <div>
         <h1>THE GAME HAS STARTED</h1>
-        {this.state.gameWon && <h2>You win! Congrats!</h2>}
+        {this.state.gameWon && (
+          <div>
+            <h2>You win! Congrats!</h2>
+            <button onClick={this.resetGame}>Play again</button>
+            <button>Exit</button>
+          </div>
+        )}
         <h2>Round {this.state.round}</h2>
         <h2>Last card played: {this.state.lastPlayedCard}</h2>
         <ul>
