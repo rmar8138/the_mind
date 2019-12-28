@@ -68,6 +68,19 @@ export class Game extends Component {
         round: 1
       }));
     });
+
+    socket.on("gameOver", () => {
+      this.setState(() => ({
+        gameOver: true
+      }));
+    });
+
+    socket.on("exitGame", () => {
+      this.props.history.replace({
+        pathname: "/",
+        state: null
+      });
+    });
   }
 
   checkValidCard = playedCard => {
@@ -113,9 +126,7 @@ export class Game extends Component {
 
       // disable click events??
       console.log("GAME OVER");
-      this.setState(() => ({
-        gameOver: true
-      }));
+      socket.emit("gameOver");
     }
   };
 
@@ -171,6 +182,11 @@ export class Game extends Component {
     socket.emit("setupGame", this.props.users.length, 1);
   };
 
+  exitGame = () => {
+    const { socket } = this.props;
+    socket.emit("exitGame");
+  };
+
   render() {
     return (
       <div>
@@ -179,14 +195,14 @@ export class Game extends Component {
           <div>
             <h2>You win! Congrats!</h2>
             <button onClick={this.resetGame}>Play again</button>
-            <button>Exit</button>
+            <button onClick={this.exitGame}>Exit</button>
           </div>
         )}
         {this.state.gameOver && (
           <div>
             <h2>You lose...</h2>
             <button onClick={this.resetGame}>Play again</button>
-            <button>Exit</button>
+            <button onClick={this.exitGame}>Exit</button>
           </div>
         )}
         <h2>Round {this.state.round}</h2>

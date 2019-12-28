@@ -79,6 +79,14 @@ const socketInit = (io, socket) => {
     io.to(room.roomid).emit("resetRoundCount");
   });
 
+  socket.on("gameOver", () => {
+    io.to(room.roomid).emit("gameOver");
+  });
+
+  socket.on("exitGame", () => {
+    io.to(room.roomid).emit("exitGame");
+  });
+
   socket.on("disconnect", () => {
     // delete user from room
     if (room) {
