@@ -194,6 +194,8 @@ export class Game extends Component {
 
   exitGame = () => {
     const { socket } = this.props;
+
+    // delete room and redirect
     socket.emit("exitGame");
   };
 

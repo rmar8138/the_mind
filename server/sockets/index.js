@@ -4,12 +4,14 @@ const RoomModel = require("../database/models/RoomModel");
 const sockets = [];
 
 const socketInit = (io, socket) => {
-  let room = null;
+  let room = { users: [] };
+  let roomidReference = null;
 
   // push socket id to array
   sockets.push(socket.id);
 
   socket.on("setRoom", roomid => {
+    roomidReference = roomid;
     socket.join(roomid);
   });
 
@@ -35,7 +37,6 @@ const socketInit = (io, socket) => {
 
   // setup cards for all sockets
   socket.on("setupGame", async (numberOfUsers, round) => {
-    console.log(round);
     await room.updateOne({ gameStarted: true });
 
     // setup cards
@@ -83,18 +84,47 @@ const socketInit = (io, socket) => {
     io.to(room.roomid).emit("gameOver");
   });
 
-  socket.on("exitGame", () => {
+  socket.on("exitGame", async () => {
+    await RoomModel.findOneAndDelete({
+      roomid: roomidReference
+    });
     io.to(room.roomid).emit("exitGame");
   });
 
-  socket.on("disconnect", () => {
-    // delete user from room
-    if (room) {
-      const userid = room.users.find(user => user.socketid === socket.id)._id;
-      room.users.pull(userid);
-      room.save();
+  socket.on("disconnect", async () => {
+    console.log(roomidReference);
+    console.log(room);
+    if (room.users.length) {
+      // delete user from room
+      try {
+        const userid = room.users.find(user => user.socketid === socket.id)._id;
+        room.users.pull(userid);
+        room.save();
+      } catch (error) {
+        console.log(error);
+      }
+
+      // delete room if no users
+      if (room.users.length <= 0) {
+        console.log("this ran");
+        const deleted = await RoomModel.findOneAndDelete({
+          roomid: roomidReference
+        });
+        return console.log(deleted);
+      }
 
       io.to(room.roomid).emit("updateUsers", room.users);
+    } else {
+      // room hasnt been saved to socket, meaning user has closed room
+      // before entering user name. delete room in this case
+
+      if (room.users.length <= 0) {
+        console.log("this ran");
+        const deleted = await RoomModel.findOneAndDelete({
+          roomid: roomidReference
+        });
+        return console.log(deleted);
+      }
     }
   });
 };
