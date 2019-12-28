@@ -182,6 +182,13 @@ export class Game extends Component {
             <button>Exit</button>
           </div>
         )}
+        {this.state.gameOver && (
+          <div>
+            <h2>You lose...</h2>
+            <button onClick={this.resetGame}>Play again</button>
+            <button>Exit</button>
+          </div>
+        )}
         <h2>Round {this.state.round}</h2>
         <h2>Last card played: {this.state.lastPlayedCard}</h2>
         <ul>

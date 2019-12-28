@@ -32,6 +32,12 @@ export class Room extends Component {
       });
     }
 
+    await this.setState(() => ({
+      users: roomData.data.users,
+      gameStarted: roomData.data.gameStarted,
+      loading: false
+    }));
+
     // redirect if game has already started
     if (this.state.gameStarted) {
       // redirect with message
@@ -44,7 +50,7 @@ export class Room extends Component {
     }
 
     // redirect if game already has 4 players
-    if (this.state.users.length === 4) {
+    if (this.state.users.length >= 4) {
       // redirect with message
       return this.props.history.replace({
         pathname: "/",
@@ -53,12 +59,6 @@ export class Room extends Component {
         }
       });
     }
-
-    this.setState(() => ({
-      users: roomData.data.users,
-      gameStarted: roomData.data.gameStarted,
-      loading: false
-    }));
 
     // establish socket connection
     socket = socketClient(endpoint, { roomid });
