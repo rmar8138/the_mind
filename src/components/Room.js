@@ -3,6 +3,7 @@ import socketClient from "socket.io-client";
 import axios from "axios";
 import Lobby from "./Lobby";
 import Game from "./Game";
+import { Container } from "./styles/Container";
 
 const endpoint = "http://localhost:5000";
 let socket = null;
@@ -93,33 +94,37 @@ export class Room extends Component {
   };
 
   render() {
-    return this.state.loading ? (
-      <h1>LOADING</h1>
-    ) : this.state.currentUser ? (
-      this.state.gameStarted ? (
-        <Game
-          users={this.state.users}
-          socket={socket}
-          history={this.props.history}
-        />
-      ) : (
-        <Lobby
-          roomid={this.props.match.params.roomid}
-          users={this.state.users}
-          startGame={this.startGame}
-        />
-      )
-    ) : (
-      <div>
-        <h1>pls enter name</h1>
-        <form onSubmit={this.joinRoom}>
+    return (
+      <Container>
+        {this.state.loading ? (
+          <h1>LOADING</h1>
+        ) : this.state.currentUser ? (
+          this.state.gameStarted ? (
+            <Game
+              users={this.state.users}
+              socket={socket}
+              history={this.props.history}
+            />
+          ) : (
+            <Lobby
+              roomid={this.props.match.params.roomid}
+              users={this.state.users}
+              startGame={this.startGame}
+            />
+          )
+        ) : (
           <div>
-            <label>Username</label>
-            <input type="text" name="username" />
+            <h1>Enter Username</h1>
+            <form onSubmit={this.joinRoom}>
+              <div>
+                <label>Username</label>
+                <input type="text" name="username" />
+              </div>
+              <button>Join Room</button>
+            </form>
           </div>
-          <button>Join Room</button>
-        </form>
-      </div>
+        )}
+      </Container>
     );
   }
 }

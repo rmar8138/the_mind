@@ -2,6 +2,13 @@ import React, { Component } from "react";
 import styled from "styled-components";
 import axios from "axios";
 import shortid from "shortid";
+import { Button } from "./styles/Button";
+import { Container } from "./styles/Container";
+
+const HomeContainer = styled(Container)`
+  flex-direction: column;
+  justify-content: space-between;
+`;
 
 export class Home extends Component {
   state = {
@@ -32,13 +39,11 @@ export class Home extends Component {
 
   render() {
     return (
-      <div>
+      <HomeContainer>
         <h1>The Mind</h1>
         {this.state.error && <span>{this.state.error}</span>}
-        <form onSubmit={this.createRoom}>
-          <button onClick={this.createRoom}>Create new Room</button>
-        </form>
-      </div>
+        <Button onClick={this.createRoom}>Create new Room</Button>
+      </HomeContainer>
     );
   }
 }
