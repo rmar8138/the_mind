@@ -1,12 +1,32 @@
 import React, { Component } from "react";
 import socketClient from "socket.io-client";
 import axios from "axios";
+import styled from "styled-components";
 import Lobby from "./Lobby";
 import Game from "./Game";
 import { Container } from "./styles/Container";
+import { Button } from "./styles/Button";
 
 const endpoint = "http://localhost:5000";
 let socket = null;
+
+const UsernameForm = styled.form`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  input {
+    background-color: transparent;
+    border: 1px solid white;
+    padding: 1rem 2rem;
+    border-radius: 10px;
+    color: white;
+    margin: 2rem 0;
+    font-size: 2.6rem;
+    font-weight: 200;
+    text-align: center;
+  }
+`;
 
 export class Room extends Component {
   state = {
@@ -115,13 +135,10 @@ export class Room extends Component {
         ) : (
           <div>
             <h1>Enter Username</h1>
-            <form onSubmit={this.joinRoom}>
-              <div>
-                <label>Username</label>
-                <input type="text" name="username" />
-              </div>
-              <button>Join Room</button>
-            </form>
+            <UsernameForm onSubmit={this.joinRoom}>
+              <input type="text" name="username" />
+              <Button>Join Room</Button>
+            </UsernameForm>
           </div>
         )}
       </Container>
