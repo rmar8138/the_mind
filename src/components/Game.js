@@ -1,15 +1,80 @@
 import React, { Component } from "react";
 import styled from "styled-components";
 import { Container } from "./styles/Container";
+import { Button } from "./styles/Button";
 
-const GameContainer = styled(Container)``;
+const GameContainer = styled(Container)`
+  justify-content: space-between;
+`;
+
+const Players = styled.ul`
+  list-style: none;
+`;
+
+const GameBoard = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  text-align: center;
+  align-items: center;
+  justify-content: space-evenly;
+
+  h1 {
+    font-size: 6rem;
+  }
+
+  h2 {
+  }
+
+  span {
+    border: 1px solid white;
+    border-radius: 10px;
+    padding: 4rem 2rem;
+    display: flex-inline;
+    justify-content: center;
+    align-items: center;
+  }
+`;
+
+const Cards = styled.ul`
+  list-style: none;
+  display: flex;
+  flex-direction: row-reverse;
+  overflow: scroll;
+
+  li {
+    border: 1px solid white;
+    border-radius: 10px;
+    padding: 4rem 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  li:not(:last-child) {
+    margin-left: 1rem;
+  }
+`;
+
+const FinishedGameMenu = styled.div`
+  h2 {
+    margin-bottom: 2rem;
+  }
+
+  button:not(:last-child) {
+    margin-right: 2rem;
+  }
+`;
 
 export class Game extends Component {
   state = {
     round: 1,
     cardsLeft: [],
     currentCardCount: 0,
-    lastPlayedCard: null,
+    lastPlayedCard: {
+      card: null,
+      username: null
+    },
     gameOver: false,
     gameWon: false,
     users: []
@@ -24,7 +89,10 @@ export class Game extends Component {
       console.log(this.state.round);
       await this.setState(prevState => ({
         ...prevState,
-        lastPlayedCard: null,
+        lastPlayedCard: {
+          card: null,
+          username: null
+        },
         currentCardCount: 0,
         cardsLeft: cards,
         gameOver: false,
@@ -45,7 +113,6 @@ export class Game extends Component {
       // update count for all players
       await this.setState(prevState => ({
         ...prevState,
-        currentCardCount: (prevState.currentCardCount += 1),
         users: prevState.users.map(user => {
           if (user.socketid === socketid) {
             return {
@@ -59,10 +126,14 @@ export class Game extends Component {
       }));
     });
 
-    socket.on("updateLastPlayedCard", async playedCard => {
+    socket.on("updateLastPlayedCard", async (playedCard, currentUser) => {
       await this.setState(prevState => ({
         ...prevState,
-        lastPlayedCard: playedCard
+        currentCardCount: (prevState.currentCardCount += 1),
+        lastPlayedCard: {
+          card: playedCard,
+          username: currentUser
+        }
       }));
     });
 
@@ -178,7 +249,7 @@ export class Game extends Component {
   updateLastPlayedCard = playedCard => {
     const { socket } = this.props;
     // send socket event
-    socket.emit("updateLastPlayedCard", playedCard);
+    socket.emit("updateLastPlayedCard", playedCard, this.props.currentUser);
   };
 
   nextRound = async () => {
@@ -219,31 +290,35 @@ export class Game extends Component {
   render() {
     return (
       <GameContainer>
-        {this.state.gameWon && (
-          <div>
-            <h2>You win! Congrats!</h2>
-            <button onClick={this.resetGame}>Play again</button>
-            <button onClick={this.exitGame}>Exit</button>
-          </div>
-        )}
-        {this.state.gameOver && (
-          <div>
-            <h2>You lose...</h2>
-            <button onClick={this.resetGame}>Play again</button>
-            <button onClick={this.exitGame}>Exit</button>
-          </div>
-        )}
-        <h2>Round {this.state.round}</h2>
-        <h2>Last card played: {this.state.lastPlayedCard}</h2>
-        <ul>
+        <Players>
           {this.state.users.map(user => (
             <li key={user.socketid}>
               {user.username} - {user.cards.length} card(s) left
             </li>
           ))}
-        </ul>
+        </Players>
+        <GameBoard>
+          {this.state.gameWon || this.state.gameOver ? (
+            <FinishedGameMenu>
+              <h2>
+                {this.state.gameWon && "You win!"}
+                {this.state.gameOver && "You lose..."}
+              </h2>
+              <Button onClick={this.resetGame}>Play again</Button>
+              <Button onClick={this.exitGame}>Exit</Button>
+            </FinishedGameMenu>
+          ) : (
+            <h1>Round {this.state.round}</h1>
+          )}
+          {!!this.state.currentCardCount && (
+            <>
+              <h2>{this.state.lastPlayedCard.username} played...</h2>
+              <span>{this.state.lastPlayedCard.card}</span>
+            </>
+          )}
+        </GameBoard>
         {this.state.users.length && (
-          <ul>
+          <Cards>
             {this.state.users
               .find(user => user.socketid === this.props.socket.id)
               .cards.map(card => (
@@ -251,7 +326,7 @@ export class Game extends Component {
                   {card}
                 </li>
               ))}
-          </ul>
+          </Cards>
         )}
       </GameContainer>
     );

@@ -120,6 +120,7 @@ export class Room extends Component {
     ) : this.state.currentUser ? (
       this.state.gameStarted ? (
         <Game
+          currentUser={this.state.currentUser}
           users={this.state.users}
           socket={socket}
           history={this.props.history}

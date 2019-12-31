@@ -63,8 +63,8 @@ const socketInit = (io, socket) => {
   });
 
   // update last played card state for all sockets
-  socket.on("updateLastPlayedCard", playedCard => {
-    io.to(room.roomid).emit("updateLastPlayedCard", playedCard);
+  socket.on("updateLastPlayedCard", (playedCard, currentUser) => {
+    io.to(room.roomid).emit("updateLastPlayedCard", playedCard, currentUser);
   });
 
   socket.on("nextRound", () => {
