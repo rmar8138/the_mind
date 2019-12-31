@@ -304,8 +304,8 @@ export class Game extends Component {
                 {this.state.gameWon && "You win!"}
                 {this.state.gameOver && "You lose..."}
               </h2>
-              <Button onClick={this.resetGame}>Play again</Button>
-              <Button onClick={this.exitGame}>Exit</Button>
+              <Button onTap={this.resetGame}>Play again</Button>
+              <Button onTap={this.exitGame}>Exit</Button>
             </FinishedGameMenu>
           ) : (
             <h1>Round {this.state.round}</h1>

@@ -47,7 +47,7 @@ export class Home extends Component {
           <h1>The Mind</h1>
           {this.state.error && <span>{this.state.error}</span>}
         </div>
-        <Button onClick={this.createRoom}>Create new Room</Button>
+        <Button onTap={this.createRoom}>Create new Room</Button>
       </HomeContainer>
     );
   }

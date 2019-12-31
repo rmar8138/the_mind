@@ -1,6 +1,7 @@
 import styled from "styled-components";
+import Tappable from "react-tappable";
 
-export const Button = styled.button`
+export const Button = styled(Tappable)`
   align-self: center;
   color: ${({ theme }) => theme.white};
   font-size: 2.6rem;

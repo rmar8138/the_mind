@@ -46,7 +46,7 @@ export class Lobby extends Component {
             </li>
           ))}
         </ol>
-        <Button onClick={this.props.startGame}>Start game</Button>
+        <Button onTap={this.props.startGame}>Start game</Button>
       </LobbyContainer>
     );
   }
