@@ -30,4 +30,8 @@ router.post("/api/room", async (req, res) => {
   res.json(newRoom);
 });
 
+router.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname + "../../build"));
+});
+
 module.exports = router;

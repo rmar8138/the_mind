@@ -1,9 +1,12 @@
+const path = require("path");
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const routes = require("./routes");
 
 const app = express();
+
+app.use(express.static(path.join(__dirname, "./../build")));
 
 mongoose.connect(`mongodb://localhost/the_mind`, {
   useNewUrlParser: true,

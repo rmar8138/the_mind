@@ -22,7 +22,8 @@
     "styled-components": "^4.4.1"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "npm install && node server/index.js",
+    "heroku-postbuild": "npm run build",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
