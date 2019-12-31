@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import Tappable from "react-tappable";
+import Tappable from "react-tappable/lib/Tappable";
 
 export const Button = styled(Tappable)`
   align-self: center;
