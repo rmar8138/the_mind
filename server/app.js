@@ -5,10 +5,11 @@ const bodyParser = require("body-parser");
 const routes = require("./routes");
 
 const app = express();
+const db = process.env.MONGODB_URI || "mongodb://localhost/the_mind";
 
 app.use(express.static(path.join(__dirname, "./../build")));
 
-mongoose.connect(`mongodb://localhost/the_mind`, {
+mongoose.connect(db, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
