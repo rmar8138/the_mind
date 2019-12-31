@@ -22,10 +22,10 @@ app.use(bodyParser.json());
 
 app.use(express.static(path.join(__dirname, "./../build/static")));
 
+app.use(routes);
+
 app.get("*", (req, res) => {
   res.sendfile(path(__dirname + "./../build/index.html"));
 });
-
-app.use(routes);
 
 module.exports = app;
