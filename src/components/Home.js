@@ -6,8 +6,11 @@ import { Button } from "./styles/Button";
 import { Container } from "./styles/Container";
 
 const HomeContainer = styled(Container)`
-  flex-direction: column;
   justify-content: space-between;
+
+  .heading {
+    text-align: center;
+  }
 `;
 
 export class Home extends Component {
@@ -40,8 +43,10 @@ export class Home extends Component {
   render() {
     return (
       <HomeContainer>
-        <h1>The Mind</h1>
-        {this.state.error && <span>{this.state.error}</span>}
+        <div className="heading">
+          <h1>The Mind</h1>
+          {this.state.error && <span>{this.state.error}</span>}
+        </div>
         <Button onClick={this.createRoom}>Create new Room</Button>
       </HomeContainer>
     );

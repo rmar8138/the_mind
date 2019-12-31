@@ -11,6 +11,7 @@ const endpoint = "http://localhost:5000";
 let socket = null;
 
 const UsernameForm = styled.form`
+  height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -114,33 +115,29 @@ export class Room extends Component {
   };
 
   render() {
-    return (
+    return this.state.loading ? (
+      <h1>LOADING</h1>
+    ) : this.state.currentUser ? (
+      this.state.gameStarted ? (
+        <Game
+          users={this.state.users}
+          socket={socket}
+          history={this.props.history}
+        />
+      ) : (
+        <Lobby
+          roomid={this.props.match.params.roomid}
+          users={this.state.users}
+          startGame={this.startGame}
+        />
+      )
+    ) : (
       <Container>
-        {this.state.loading ? (
-          <h1>LOADING</h1>
-        ) : this.state.currentUser ? (
-          this.state.gameStarted ? (
-            <Game
-              users={this.state.users}
-              socket={socket}
-              history={this.props.history}
-            />
-          ) : (
-            <Lobby
-              roomid={this.props.match.params.roomid}
-              users={this.state.users}
-              startGame={this.startGame}
-            />
-          )
-        ) : (
-          <div>
-            <h1>Enter Username</h1>
-            <UsernameForm onSubmit={this.joinRoom}>
-              <input type="text" name="username" />
-              <Button>Join Room</Button>
-            </UsernameForm>
-          </div>
-        )}
+        <UsernameForm onSubmit={this.joinRoom}>
+          <h1>Enter Username</h1>
+          <input type="text" name="username" />
+          <Button>Join Room</Button>
+        </UsernameForm>
       </Container>
     );
   }

@@ -1,4 +1,8 @@
 import React, { Component } from "react";
+import styled from "styled-components";
+import { Container } from "./styles/Container";
+
+const GameContainer = styled(Container)``;
 
 export class Game extends Component {
   state = {
@@ -214,8 +218,7 @@ export class Game extends Component {
 
   render() {
     return (
-      <div>
-        <h1>THE GAME HAS STARTED</h1>
+      <GameContainer>
         {this.state.gameWon && (
           <div>
             <h2>You win! Congrats!</h2>
@@ -250,7 +253,7 @@ export class Game extends Component {
               ))}
           </ul>
         )}
-      </div>
+      </GameContainer>
     );
   }
 }
