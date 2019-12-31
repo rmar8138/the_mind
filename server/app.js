@@ -2,6 +2,7 @@ const path = require("path");
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
+const history = require("connect-history-api-fallback");
 const routes = require("./routes");
 
 const app = express();
@@ -16,6 +17,8 @@ mongoose.connect(db, {
 
 mongoose.Promise = global.Promise;
 mongoose.connection.on("error", err => console.log(err));
+
+app.use(history());
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
