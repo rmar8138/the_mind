@@ -7,7 +7,7 @@ const routes = require("./routes");
 const app = express();
 const db = process.env.MONGODB_URI || "mongodb://localhost/the_mind";
 
-app.use(express.static(path.join(__dirname, "./../build")));
+app.use(express.static(path.join(__dirname, "./../build/static")));
 
 mongoose.connect(db, {
   useNewUrlParser: true,

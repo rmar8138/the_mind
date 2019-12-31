@@ -9,4 +9,5 @@ export const Button = styled.button`
   padding: 1rem 2rem;
   border-radius: 10px;
   border: ${({ theme }) => `1px solid ${theme.white}`};
+  cursor: pointer;
 `;
