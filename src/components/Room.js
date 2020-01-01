@@ -7,7 +7,7 @@ import Game from "./Game";
 import { Container } from "./styles/Container";
 import { Button } from "./styles/Button";
 
-const endpoint = "http://localhost:5000";
+const endpoint = "http://quiet-tor-63256.herokuapp.com";
 let socket = null;
 
 const UsernameForm = styled.form`

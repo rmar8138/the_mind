@@ -5,6 +5,8 @@ import shortid from "shortid";
 import { Button } from "./styles/Button";
 import { Container } from "./styles/Container";
 
+const endpoint = "http://quiet-tor-63256.herokuapp.com";
+
 const HomeContainer = styled(Container)`
   justify-content: space-between;
 
@@ -36,7 +38,7 @@ export class Home extends Component {
 
     e.preventDefault();
 
-    await axios.post("http://localhost:5000/api/room", { roomid });
+    await axios.post(`${endpoint}/api/room`, { roomid });
     this.props.history.push(`/${roomid}`);
   };
 
